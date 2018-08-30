@@ -2,17 +2,25 @@
   <div class="">
     <h3>Dashboard Component</h3>
     <button class="btn btn-danger btn-sm signout-btn" name="button" @click="signOut">Sign Out</button>
-    {{$store.state}}
     <hr>
     <AddEvent />
     <hr>
+    <div class="col-md-12">
+      <EventItem
+      v-for="(event_item, index) in this.$store.state.events"
+      :event="event_item"
+      key="index"
+      />
+    </div>
+
   </div>
 </template>
 
 
 <script>
-  import { firebaseApp } from '../firebaseApp'
+  import { firebaseApp, eventRef } from '../firebaseApp'
   import AddEvent from './AddEvent.vue'
+  import EventItem from './EventItem.vue'
 
   export default {
     methods: {
@@ -22,7 +30,17 @@
       }
     },
     components: {
-      AddEvent
+      AddEvent,
+      EventItem
+    },
+    mounted() {
+     eventRef.on('value', snap => {
+       let events = []
+       snap.forEach(event => {
+         events.push(event.val())
+       })
+       this.$store.dispatch('setEvents', events)
+     })
     }
   }
 
